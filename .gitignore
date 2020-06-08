@@ -1,0 +1,5 @@
+# dependencies
+/node_modules
+
+# DB Credentials
+/routes/db_credentials.js
