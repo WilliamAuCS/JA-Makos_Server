@@ -11,7 +11,7 @@ const mongoose = require('mongoose')
 const db = require('./db_credentials')
 
 
-mongoose.connect(db.db_cred, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
+mongoose.connect(db.DB_CRED, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if(err)
     {
         console.error('Error!' + error)
@@ -26,6 +26,36 @@ mongoose.connect(db.db_cred, { useUnifiedTopology: true, useNewUrlParser: true }
 router.get('/', (req, res) => {
     res.send('From API route')
 })
+
+function verifyToken(req, res, next) {
+  // If header is not present
+  if(!req.headers.authorization) {
+    return res.status(401).send('Unauthorized request');
+  }
+  let token = req.headers.authorization.split(" ")[1];
+  if(token === 'null') {
+    return res.status(401).send('Unauthorized request');
+  }
+
+  // Verifying token
+  try {
+    let payload = jwt.verify(token, db.JWT_SECRETKEY)
+  } 
+  // If token does not match, throw error
+  catch(err) {
+    return res.status(401).send('Unauthorized request');
+  }
+  
+
+  // If token does not exist, it did not pass verification
+  if(!payload) {
+    return res.status(401).send('Unauthorized request');
+  }
+
+  // If verification passes, assign payload subject as the user id
+  req.userID = payload.subject;
+  next();
+}
 
 router.post('/register', (req, res) => {
 
@@ -44,7 +74,7 @@ router.post('/register', (req, res) => {
         {
           // Implementing JWT
           let payload = { subject: registeredUser._id }
-          let token = jwt.sign(payload, db.jwt_secretKey)
+          let token = jwt.sign(payload, db.JWT_SECRETKEY)
           
           res.status(200).send({token})
         }
@@ -82,13 +112,83 @@ router.post('/login', (req, res) => {
                 {
                   // Implementing JWT
                   let payload = { subject: user._id }
-                  let token = jwt.sign(payload, db.jwt_secretKey)
+                  let token = jwt.sign(payload, db.JWT_SECRETKEY)
                   
                   res.status(200).send({token})
                 }
             }
         }
     })
+})
+
+router.get('/gallery', verifyToken, (req, res) => {
+  let category1 = [
+    {
+      "_id": "1", 
+      "name": "Example1",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "2", 
+      "name": "Example2",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "3", 
+      "name": "Example3",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "3", 
+      "name": "Example3",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "3", 
+      "name": "Example3",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "1", 
+      "name": "Example1",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+  ];
+
+  let category2 = [
+    {
+      "_id": "4", 
+      "name": "Example4",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "5", 
+      "name": "Example5",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+    {
+      "_id": "6", 
+      "name": "Example6",
+      "description": "This is the first examiple",
+      "date": "2020-07-16T21:58:50.271Z"
+    },
+  ];
+
+  let response = 
+  {
+    first: category1, 
+    second: category2,
+  }
+
+  res.json(response)
 })
 
 router.get('/events', (req,res) => {
