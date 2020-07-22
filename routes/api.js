@@ -6,12 +6,14 @@ const router = express.Router()
 const User = require('../models/user')
 
 const mongoose = require('mongoose')
+const fs = require('fs')
 
-// File containing connection link to database
-const db = require('./db_credentials')
+// Files containing connection link to database and JWT secret key
+const JWT_SECRETKEY = fs.readFileSync('./db_credentials/jwt_secret.key', {encoding: 'utf8'});
+const DB_LINK = fs.readFileSync('./db_credentials/db_link.key', {encoding: 'utf-8'});
 
 
-mongoose.connect(db.DB_CRED, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
+mongoose.connect(DB_LINK, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if(err)
     {
         console.error('Error!' + error)
@@ -36,10 +38,10 @@ function verifyToken(req, res, next) {
   if(token === 'null') {
     return res.status(401).send('Unauthorized request');
   }
-  
+  let payload;
   // Verifying token
   try {
-    let payload = jwt.verify(token, db.JWT_SECRETKEY)
+    payload = jwt.verify(token, JWT_SECRETKEY)
   } 
   // If token does not match, throw error
   catch(err) {
@@ -74,7 +76,7 @@ router.post('/register', (req, res) => {
         {
           // Implementing JWT
           let payload = { subject: registeredUser._id }
-          let token = jwt.sign(payload, db.JWT_SECRETKEY)
+          let token = jwt.sign(payload, JWT_SECRETKEY)
           
           res.status(200).send({token})
         }
@@ -112,7 +114,7 @@ router.post('/login', (req, res) => {
                 {
                   // Implementing JWT
                   let payload = { subject: user._id }
-                  let token = jwt.sign(payload, db.JWT_SECRETKEY)
+                  let token = jwt.sign(payload, JWT_SECRETKEY)
                   
                   res.status(200).send({token})
                 }
