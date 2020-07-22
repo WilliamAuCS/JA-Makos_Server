@@ -3,3 +3,5 @@
 
 # DB Credentials
 /routes/db_credentials.js
+/db_credentials
+*.key
