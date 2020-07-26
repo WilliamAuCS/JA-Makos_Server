@@ -111,7 +111,8 @@ router.post('/login', (req, res) => {
       else {
 
         try {
-          // If email/pass match, return user data
+          // If email/password match, return user data
+          // Using Argon2i
           argon2.verify(user.password, userData.password).then(argon2Match => {
             if (argon2Match) {
               // Implementing JWT
@@ -123,9 +124,7 @@ router.post('/login', (req, res) => {
               // Throw error if password does not match
               res.status(401).send('Invalid password');
             }
-          }).catch(error => {
-            console.log(error);
-          });
+          })
         }
         catch (err) {
           console.log("hey there");
