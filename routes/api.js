@@ -8,7 +8,8 @@ const argon2 = require('argon2');
 
 const mongoose = require('mongoose');
 const fs = require('fs');
-const validatorEmail = require('validator/lib/isEmail');
+const validator = require('validator');
+
 
 // Files containing connection link to database and JWT secret key
 const JWT_SECRETKEY = fs.readFileSync('./db_credentials/jwt_secret.key', { encoding: 'utf8' });
@@ -59,15 +60,20 @@ function verifyToken(req, res, next) {
   next();
 }
 
+// Sanitation for user email input 
+function sanatizeEmail(email, res) {
+  res.status(400).send("Invalid Email Format");
+  return validator.isEmail(email);
+}
+
 router.post('/register', (req, res) => {
 
   // Extracting user data from request object
   let userData = req.body
 
-  // Sanitation for user email inpuut 
-  if(!validatorEmail.isEmail(userData.email)) 
+  // Sanitation for user email input 
+  if (!sanatizeEmail(userData.email, res)) 
   {
-    res.status(400).send("Invalid Email Format");
     return;
   }
 
@@ -106,6 +112,12 @@ router.post('/login', (req, res) => {
   // Extracting user data
   let userData = req.body
 
+  // Sanitation for user email input 
+  if (!sanatizeEmail(userData.email, res)) 
+  {
+    return;
+  }
+
   // Check if given email/pass combo exists
   User.findOne({ email: userData.email }, (error, user) => {
     if (error) {
@@ -114,7 +126,7 @@ router.post('/login', (req, res) => {
     else {
       // Throw error if email does not exist
       if (!user) {
-        res.status(401).send('Invalid email')
+        res.status(401).send('Invalid email');
       }
       else {
 
