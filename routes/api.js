@@ -8,6 +8,7 @@ const argon2 = require('argon2');
 
 const mongoose = require('mongoose');
 const fs = require('fs');
+const validatorEmail = require('validator/lib/isEmail');
 
 // Files containing connection link to database and JWT secret key
 const JWT_SECRETKEY = fs.readFileSync('./db_credentials/jwt_secret.key', { encoding: 'utf8' });
@@ -62,6 +63,14 @@ router.post('/register', (req, res) => {
 
   // Extracting user data from request object
   let userData = req.body
+
+  // Sanitation for user email inpuut 
+  if(!validatorEmail.isEmail(userData.email)) 
+  {
+    res.status(400).send("Invalid Email Format");
+    return;
+  }
+
   // Converting into mongoose model
   let user = new User(userData)
 
@@ -70,7 +79,6 @@ router.post('/register', (req, res) => {
 
       // Setting user's password to its hashed version
       user.password = hashed;
-      console.log(user.password)
       // Saving to database
       user.save((error, registeredUser) => {
         if (error) {
