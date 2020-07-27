@@ -61,9 +61,32 @@ function verifyToken(req, res, next) {
 }
 
 // Sanitation for user email input 
-function sanatizeEmail(email, res) {
-  res.status(400).send("Invalid Email Format");
-  return validator.isEmail(email);
+function sanitizeEmail(email) 
+{
+  return validator.isEmail(email,
+    {
+      allow_utf8_local_part: false,
+      ignore_max_length: false
+    });
+}
+function sanitizePassword(userData) 
+{
+  let sanitizedPass = userData.password;
+
+  // If password only contains whitespace
+  if(validator.isEmpty(sanitizedPass, {ignore_whitespace: true}))
+  {
+    return false;
+  }
+
+  // Trimming whitespace on ends
+  sanitizedPass = validator.trim(sanitizedPass);
+
+  // Replacing key symbols with HTML entities
+  sanitizedPass = validator.escape(sanitizedPass);
+  userData.password = sanitizedPass;
+
+  return true;
 }
 
 router.post('/register', (req, res) => {
@@ -72,8 +95,18 @@ router.post('/register', (req, res) => {
   let userData = req.body
 
   // Sanitation for user email input 
-  if (!sanatizeEmail(userData.email, res)) 
+  if (!sanitizeEmail(userData.email)) {
+    res.status(400).send("Invalid Email Format");
+    return;
+  }
+  else if (userData.password == "") {
+    return;
+  }
+
+  // Sanitation for user password input
+  if(!sanitizePassword(userData))
   {
+    res.status(400).send("Invalid Password Format");
     return;
   }
 
@@ -113,8 +146,8 @@ router.post('/login', (req, res) => {
   let userData = req.body
 
   // Sanitation for user email input 
-  if (!sanatizeEmail(userData.email, res)) 
-  {
+  if (!sanitizeEmail(userData.email)) {
+    res.status(400).send("Invalid Email Format");
     return;
   }
 
@@ -147,7 +180,6 @@ router.post('/login', (req, res) => {
           })
         }
         catch (err) {
-          console.log("hey there");
           console.log(err);
         }
       }
