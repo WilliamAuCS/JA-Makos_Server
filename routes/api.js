@@ -4,31 +4,19 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/user');
+const Asset_information = require("../models/asset_information");
 const argon2 = require('argon2');
-
-const mongoose = require('mongoose');
 const fs = require('fs');
 const validator = require('validator');
 
-
 // Files containing connection link to database and JWT secret key
 const JWT_SECRETKEY = fs.readFileSync('./db_credentials/jwt_secret.key', { encoding: 'utf8' });
-const DB_LINK = fs.readFileSync('./db_credentials/db_link.key', { encoding: 'utf-8' });
 
-
-mongoose.connect(DB_LINK, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
-  if (err) {
-    console.error('Error!' + error)
-  }
-  else {
-    console.log('Connected to mongodb')
-  }
-
-})
 
 router.get('/', (req, res) => {
   res.send('From API route')
 })
+
 
 function verifyToken(req, res, next) {
   // If header is not present
@@ -183,93 +171,31 @@ router.post('/login', (req, res) => {
   })
 })
 
+router.put('/deleteAccount', (req, res) => {
+  User.deleteOne({ email: req }, (err) => {
+    if(err) {
+      console.error(err);
+    }
+    else {
+      res.status(200).send("Account deleted");
+    }
+  })
+})
+
 router.get('/gallery', verifyToken, (req, res) => {
 
-  // Watch straps start with _id 1
-  // Parsing file containing images
-  let b_images = fs.readdirSync("./assets/watch-strap/brown");
-  b_images.forEach((item, index, arr) => {
-    arr[index] = item.split(".")[0];
-  });
-  b_images.forEach((item, index, arr) => {
-    arr[index] = item.split("_")[1];
-  })
-  console.log(b_images)
+  var gallery_response = [];
 
-  let watch_strap = [
-    {
-      "_id": "1001",
-      "name": ""
+  Asset_information.find({category: "Watch Straps"}, (err, asset) => {
+    if(err) {
+      console.log("There was an error");
+      console.log(err);
     }
-  ]
-
-  let category1 = [
-    {
-      "_id": "1",
-      "name": "Example1",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "2",
-      "name": "Example2",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "3",
-      "name": "Example3",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "3",
-      "name": "Example3",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "3",
-      "name": "Example3",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "1",
-      "name": "Example1",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-  ];
-
-  let category2 = [
-    {
-      "_id": "4",
-      "name": "Example4",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "5",
-      "name": "Example5",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-    {
-      "_id": "6",
-      "name": "Example6",
-      "description": "This is the first examiple",
-      "date": "2020-07-16T21:58:50.271Z"
-    },
-  ];
-
-  let response =
-  {
-    first: category1,
-    second: category2,
-  }
-
-  res.json(response)
+    else {
+      gallery_response = asset;
+      res.json(gallery_response);
+    }
+  })
 })
 
 router.get('/events', (req, res) => {
@@ -314,46 +240,5 @@ router.get('/events', (req, res) => {
   res.json(events)
 })
 
-router.get('/special', (req, res) => {
-  let specialEvents = [
-    {
-      "_id": "1",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "2",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "3",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "4",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "5",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "6",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    }
-  ]
-  res.json(specialEvents)
-})
 
 module.exports = router

@@ -14,6 +14,9 @@ app.get('/', function(req, res){
     res.send("hello from server")
 })
 
+// Displaying asset images as static
+app.use("/assets/images", express.static('assets'))
+
 //app.set('PORT', process.env.PORT || 3000);
 app.listen(PORT, function(){
     console.log("Server running on localhost:" + PORT)
