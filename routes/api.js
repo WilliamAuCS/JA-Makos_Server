@@ -61,21 +61,18 @@ function verifyToken(req, res, next) {
 }
 
 // Sanitation for user email input 
-function sanitizeEmail(email) 
-{
+function sanitizeEmail(email) {
   return validator.isEmail(email,
     {
       allow_utf8_local_part: false,
       ignore_max_length: false
     });
 }
-function sanitizePassword(userData) 
-{
+function sanitizePassword(userData) {
   let sanitizedPass = userData.password;
 
   // If password only contains whitespace
-  if(validator.isEmpty(sanitizedPass, {ignore_whitespace: true}))
-  {
+  if (validator.isEmpty(sanitizedPass, { ignore_whitespace: true })) {
     return false;
   }
 
@@ -104,8 +101,7 @@ router.post('/register', (req, res) => {
   }
 
   // Sanitation for user password input
-  if(!sanitizePassword(userData))
-  {
+  if (!sanitizePassword(userData)) {
     res.status(400).send("Invalid Password Format");
     return;
   }
@@ -188,6 +184,25 @@ router.post('/login', (req, res) => {
 })
 
 router.get('/gallery', verifyToken, (req, res) => {
+
+  // Watch straps start with _id 1
+  // Parsing file containing images
+  let b_images = fs.readdirSync("./assets/watch-strap/brown");
+  b_images.forEach((item, index, arr) => {
+    arr[index] = item.split(".")[0];
+  });
+  b_images.forEach((item, index, arr) => {
+    arr[index] = item.split("_")[1];
+  })
+  console.log(b_images)
+
+  let watch_strap = [
+    {
+      "_id": "1001",
+      "name": ""
+    }
+  ]
+
   let category1 = [
     {
       "_id": "1",
