@@ -93,34 +93,53 @@ router.post('/register', (req, res) => {
     res.status(400).send("Invalid Password Format");
     return;
   }
+  if (User.findOne({ email: userData.email }, (err, response) => {
+    if (response) {
+      res.status(409).send("Email in use");
+      return;
+    }
+    else if (err) {
+      console.error(err);
+      return;
+    }
+    else {
+      AddUser();
+    }
+  }))
 
-  // Converting into mongoose model
-  let user = new User(userData)
+    function AddUser() {
 
-  try {
-    argon2.hash(user.password).then((hashed) => {
+      // Converting into mongoose model
+      let user = new User(userData)
 
-      // Setting user's password to its hashed version
-      user.password = hashed;
-      // Saving to database
-      user.save((error, registeredUser) => {
-        if (error) {
-          console.log(error)
-        }
-        else {
-          // Implementing JWT
-          let payload = { subject: registeredUser._id }
-          let token = jwt.sign(payload, JWT_SECRETKEY)
+      try {
+        argon2.hash(user.password).then((hashed) => {
 
-          res.status(200).send({ token })
-        }
-      })
-    })
-  }
-  catch (err) {
-    console.log(err);
-  }
+          // Setting user's password to its hashed version
+          user.password = hashed;
+          // Saving to database
+          user.save((error, registeredUser) => {
+            if (error) {
+              console.log(error)
+            }
+            else {
+              // Implementing JWT
+              let payload = { 
+                subject: registeredUser._id, 
+                email: registeredUser.email,
+              }
+              let token = jwt.sign(payload, JWT_SECRETKEY)
 
+              res.status(200).send({ token })
+            }
+          })
+        })
+      }
+      catch (err) {
+        console.log(err);
+      }
+
+    }
 })
 
 // Post request to the endpoint 'login'
@@ -153,9 +172,13 @@ router.post('/login', (req, res) => {
           argon2.verify(user.password, userData.password).then(argon2Match => {
             if (argon2Match) {
               // Implementing JWT
-              let payload = { subject: user._id };
+              let payload = { 
+                subject: user._id, 
+                email: user.email,   
+              };
+              let payloadEmail = user.email;
               let token = jwt.sign(payload, JWT_SECRETKEY);
-              res.status(200).send({ token });
+              res.status(200).send({ token, payloadEmail });
             }
             else {
               // Throw error if password does not match
@@ -171,14 +194,15 @@ router.post('/login', (req, res) => {
   })
 })
 
-router.put('/deleteAccount', (req, res) => {
-  User.deleteOne({ email: req }, (err) => {
-    if(err) {
-      console.error(err);
+// Deleting user account
+router.delete('/user/:userEmail', verifyToken, (req, res) => {
+  User.deleteOne({ email: req.params.userEmail }, (err) => {
+    if (err) {
+      return console.error(err);
     }
-    else {
-      res.status(200).send("Account deleted");
-    }
+    res.status(200).send({
+      statusCode: 200,
+    });
   })
 })
 
@@ -186,8 +210,8 @@ router.get('/gallery', verifyToken, (req, res) => {
 
   var gallery_response = [];
 
-  Asset_information.find({category: "Watch Straps"}, (err, asset) => {
-    if(err) {
+  Asset_information.find({ category: "Watch Straps" }, (err, asset) => {
+    if (err) {
       console.log("There was an error");
       console.log(err);
     }
