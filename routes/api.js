@@ -206,6 +206,10 @@ router.delete('/user/:userEmail', verifyToken, (req, res) => {
   })
 })
 
+router.get('/verification', verifyToken, (req, res) => {
+  res.status(200).send("Authorized");
+})
+
 router.get('/gallery', verifyToken, (req, res) => {
 
   var gallery_response = [];
