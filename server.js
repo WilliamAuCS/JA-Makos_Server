@@ -7,17 +7,24 @@ const api = require('./routes/api')
 const app = express()
 app.use(cors())
 
+// var corsOptions = {
+//     origin: "http://jamakos-com-286202.wl.r.appspot.com", 
+//     optionsSuccessStatus: 200, 
+// }
+
 app.use(bodyParser.json())
 
 app.use('/api', api)
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
     res.send("hello from server")
 })
+
+
 
 // Displaying asset images as static
 app.use("/assets/images", express.static('assets'))
 
 //app.set('PORT', process.env.PORT || 3000);
-app.listen(PORT, function(){
+app.listen(PORT, function () {
     console.log("Server running on localhost:" + PORT)
 })

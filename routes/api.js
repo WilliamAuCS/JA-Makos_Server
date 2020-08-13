@@ -8,13 +8,25 @@ const Asset_information = require("../models/asset_information");
 const argon2 = require('argon2');
 const fs = require('fs');
 const validator = require('validator');
+const cors = require('cors');
+const app = express();
+
+var corsOptions = {
+  origin: 'http://localhost:4200/register', 
+  optionsSuccessStatus: 200, 
+}
+router.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 // Files containing connection link to database and JWT secret key
 const JWT_SECRETKEY = fs.readFileSync('./db_credentials/jwt_secret.key', { encoding: 'utf8' });
 
 
 router.get('/', (req, res) => {
-  res.send('From API route')
+  res.send('From API route');
 })
 
 
@@ -50,11 +62,15 @@ function verifyToken(req, res, next) {
 
 // Sanitation for user email input 
 function sanitizeEmail(email) {
-  return validator.isEmail(email,
-    {
-      allow_utf8_local_part: false,
-      ignore_max_length: false
-    });
+  if(email)
+  {
+    return validator.isEmail(email,
+      {
+        allow_utf8_local_part: false,
+        ignore_max_length: false
+      });
+  }
+  return false;
 }
 function sanitizePassword(userData) {
   let sanitizedPass = userData.password;
@@ -143,10 +159,10 @@ router.post('/register', (req, res) => {
 })
 
 // Post request to the endpoint 'login'
-router.post('/login', (req, res) => {
+router.post('/login', cors(), (req, res) => {
 
   // Extracting user data
-  let userData = req.body
+  let userData = req.body;
 
   // Sanitation for user email input 
   if (!sanitizeEmail(userData.email)) {
@@ -157,7 +173,7 @@ router.post('/login', (req, res) => {
   // Check if given email/pass combo exists
   User.findOne({ email: userData.email }, (error, user) => {
     if (error) {
-      console.log(error)
+      console.log(error);
     }
     else {
       // Throw error if email does not exist
@@ -178,7 +194,9 @@ router.post('/login', (req, res) => {
               };
               let payloadEmail = user.email;
               let token = jwt.sign(payload, JWT_SECRETKEY);
+              //res.setHeader("Access-Control-Allow-Origin", "*");
               res.status(200).send({ token, payloadEmail });
+              console.log(res);
             }
             else {
               // Throw error if password does not match
@@ -217,7 +235,8 @@ router.get('/gallery', verifyToken, (req, res) => {
   Asset_information.find({ category: "Watch Straps" }, (err, asset) => {
     if (err) {
       console.log("There was an error");
-      console.log(err);
+      console.error(err);
+      res.status(204).send("Database Error");
     }
     else {
       gallery_response = asset;
