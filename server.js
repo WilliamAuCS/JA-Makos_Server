@@ -7,11 +7,6 @@ const api = require('./routes/api')
 const app = express()
 app.use(cors())
 
-// var corsOptions = {
-//     origin: "http://jamakos-com-286202.wl.r.appspot.com", 
-//     optionsSuccessStatus: 200, 
-// }
-
 app.use(bodyParser.json())
 
 app.use('/api', api)

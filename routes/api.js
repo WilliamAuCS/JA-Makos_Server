@@ -196,7 +196,6 @@ router.post('/login', cors(), (req, res) => {
               let token = jwt.sign(payload, JWT_SECRETKEY);
               //res.setHeader("Access-Control-Allow-Origin", "*");
               res.status(200).send({ token, payloadEmail });
-              console.log(res);
             }
             else {
               // Throw error if password does not match
@@ -234,7 +233,6 @@ router.get('/gallery', verifyToken, (req, res) => {
 
   Asset_information.find({ category: "Watch Straps" }, (err, asset) => {
     if (err) {
-      console.log("There was an error");
       console.error(err);
       res.status(204).send("Database Error");
     }
