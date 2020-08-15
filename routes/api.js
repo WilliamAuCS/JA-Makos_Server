@@ -38,7 +38,7 @@ function verifyToken(req, res, next) {
   let payload;
   // Verifying token
   try {
-    payload = jwt.verify(token, JWT_SECRETKEY)
+    payload = jwt.verify(token, JWT_SECRETKEY);
   }
   // If token does not match, throw error
   catch (err) {
@@ -50,16 +50,23 @@ function verifyToken(req, res, next) {
   if (!payload) {
     return res.status(401).send('Unauthorized request');
   }
+  let request = req;
+  try {
+    User.findOne({ email: payload.email }, (req, res) => {
+        // If verification passes, assign payload subject as the user id
+        request.userID = payload.subject;
+        next();
+    })
+  }
+  catch (err) {
+    console.error(err);
+  }
 
-  // If verification passes, assign payload subject as the user id
-  req.userID = payload.subject;
-  next();
 }
 
 // Sanitation for user email input 
 function sanitizeEmail(email) {
-  if(email)
-  {
+  if (email) {
     return validator.isEmail(email,
       {
         allow_utf8_local_part: false,
@@ -136,8 +143,8 @@ router.post('/register', (req, res) => {
             }
             else {
               // Implementing JWT
-              let payload = { 
-                subject: registeredUser._id, 
+              let payload = {
+                subject: registeredUser._id,
                 email: registeredUser.email,
               }
               let token = jwt.sign(payload, JWT_SECRETKEY)
@@ -184,12 +191,12 @@ router.post('/login', (req, res) => {
           argon2.verify(user.password, userData.password).then(argon2Match => {
             if (argon2Match) {
               // Implementing JWT
-              let payload = { 
-                subject: user._id, 
-                email: user.email,   
+              let payload = {
+                subject: user._id,
+                email: user.email,
               };
-              let payloadEmail = user.email;
               let token = jwt.sign(payload, JWT_SECRETKEY);
+              let payloadEmail = user.email;
               //res.setHeader("Access-Control-Allow-Origin", "*");
               res.status(200).send({ token, payloadEmail });
             }
@@ -220,7 +227,7 @@ router.delete('/user/:userEmail', verifyToken, (req, res) => {
 })
 
 router.get('/verification', verifyToken, (req, res) => {
-  res.status(200).send("Authorized");
+  res.status(200).send({ response: "Authorized"});
 })
 
 router.get('/gallery', verifyToken, (req, res) => {
