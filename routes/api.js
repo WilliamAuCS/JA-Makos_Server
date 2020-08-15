@@ -11,15 +11,11 @@ const validator = require('validator');
 const cors = require('cors');
 const app = express();
 
-var corsOptions = {
-  origin: 'http://localhost:4200/register', 
-  optionsSuccessStatus: 200, 
-}
-router.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+// router.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//   next();
+// });
 
 // Files containing connection link to database and JWT secret key
 const JWT_SECRETKEY = fs.readFileSync('./db_credentials/jwt_secret.key', { encoding: 'utf8' });
@@ -159,7 +155,7 @@ router.post('/register', (req, res) => {
 })
 
 // Post request to the endpoint 'login'
-router.post('/login', cors(), (req, res) => {
+router.post('/login', (req, res) => {
 
   // Extracting user data
   let userData = req.body;
