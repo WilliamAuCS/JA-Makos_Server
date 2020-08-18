@@ -168,7 +168,7 @@ router.post('/login', (req, res) => {
   let userData = req.body;
 
   // Sanitation for user email input 
-  if (!sanitizeEmail(userData.email)) {
+  if (sanitizeEmail(userData.email) == false) {
     res.status(400).send("Invalid Email Format");
     return;
   }
@@ -181,7 +181,7 @@ router.post('/login', (req, res) => {
     else {
       // Throw error if email does not exist
       if (!user) {
-        res.status(401).send('Invalid email');
+        res.status(401).send('Invalid credentials');
       }
       else {
 
@@ -202,7 +202,7 @@ router.post('/login', (req, res) => {
             }
             else {
               // Throw error if password does not match
-              res.status(401).send('Invalid password');
+              res.status(401).send('Invalid credentials');
             }
           })
         }
