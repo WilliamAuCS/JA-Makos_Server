@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const https = require("https");
 
-const PORT = 443;
+const PORT = 8080;
 const api = require('./routes/api');
 const app = express();
 app.use(cors());
