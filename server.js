@@ -1,12 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const https = require("https");
 
-const PORT = 443;
+const PORT = 80;
 const api = require('./routes/api');
 const app = express();
 app.use(cors());
+
 
 app.use(bodyParser.json())
 
@@ -16,11 +16,9 @@ app.get('/', function (req, res) {
 })
 
 
-
 // Displaying asset images as static
 app.use("/assets/images", express.static('assets'))
 
-//app.set('PORT', process.env.PORT || 3000);
 app.listen(PORT, function () {
     console.log("Server running on localhost:" + PORT)
 })

@@ -8,8 +8,6 @@ const Asset_information = require("../models/asset_information");
 const argon2 = require('argon2');
 const fs = require('fs');
 const validator = require('validator');
-const cors = require('cors');
-const app = express();
 
 // router.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
