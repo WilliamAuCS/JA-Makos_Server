@@ -7,3 +7,4 @@
 *.key
 
 nohup.out
+.vscode/
