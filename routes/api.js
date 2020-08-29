@@ -51,9 +51,9 @@ function verifyToken(req, res, next) {
   let request = req;
   try {
     User.findOne({ email: payload.email }, (req, res) => {
-        // If verification passes, assign payload subject as the user id
-        request.userID = payload.subject;
-        next();
+      // If verification passes, assign payload subject as the user id
+      request.userID = payload.subject;
+      next();
     })
   }
   catch (err) {
@@ -94,13 +94,14 @@ function sanitizePassword(userData) {
 router.post('/register', (req, res) => {
 
   // Extracting user data from request object
-  let userData = req.body
+  let userData = req.body;
 
   // Sanitation for user email input 
   if (!sanitizeEmail(userData.email)) {
     res.status(400).send("Invalid Email Format");
     return;
   }
+
   else if (userData.password == "") {
     return;
   }
@@ -110,6 +111,9 @@ router.post('/register', (req, res) => {
     res.status(400).send("Invalid Password Format");
     return;
   }
+  // Setting email to lowercase
+  userData.email = userData.email.toLowerCase();
+
   if (User.findOne({ email: userData.email }, (err, response) => {
     if (response) {
       res.status(409).send("Email in use");
@@ -170,6 +174,8 @@ router.post('/login', (req, res) => {
     res.status(400).send("Invalid Email Format");
     return;
   }
+  // Setting email to lowercase
+  userData.email = userData.email.toLowerCase();
 
   // Check if given email/pass combo exists
   User.findOne({ email: userData.email }, (error, user) => {
@@ -225,7 +231,7 @@ router.delete('/user/:userEmail', verifyToken, (req, res) => {
 })
 
 router.get('/verification', verifyToken, (req, res) => {
-  res.status(200).send({ response: "Authorized"});
+  res.status(200).send({ response: "Authorized" });
 })
 
 router.get('/gallery', verifyToken, (req, res) => {
