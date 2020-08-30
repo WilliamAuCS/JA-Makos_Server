@@ -244,7 +244,10 @@ router.get('/gallery', (req, res) => {
       res.status(204).send("Database Error");
     }
     else {
-      gallery_response = asset;
+      gallery_response = asset; 
+      asset.forEach(element => {
+        element.img_link = "https://server.makosusa.com/assets/images/" + element.img_link;
+      });
       res.json(gallery_response);
     }
   })
