@@ -234,7 +234,7 @@ router.get('/verification', verifyToken, (req, res) => {
   res.status(200).send({ response: "Authorized" });
 })
 
-router.get('/gallery', verifyToken, (req, res) => {
+router.get('/gallery', (req, res) => {
 
   var gallery_response = [];
 
