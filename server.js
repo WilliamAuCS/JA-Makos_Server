@@ -18,10 +18,10 @@ var httpsServer = https.createServer(credentials, app);
 
 app.use(bodyParser.json())
 
-// app.use('/api', api)
-// app.get('/', function (req, res) {
-//     res.send("hello from server")
-// })
+app.use('/api', api)
+app.get('/', function (req, res) {
+    res.send("hello from server")
+})
 
 
 // Displaying asset images as static
