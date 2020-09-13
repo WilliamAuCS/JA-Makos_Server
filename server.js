@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const cors = require('cors');
 
-const PORT = 80;
+const PORT = 443;
 const api = require('./routes/api');
 const app = express();
 const https = require("https");
