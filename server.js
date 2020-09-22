@@ -14,9 +14,15 @@ const credentials = {key: privateKey, cert: certificate};
 
 app.use(cors());
 
+const corsOptions = {
+    orign: ['https://makosusa.com', 'https://www.makosusa.com'], 
+    optionsSuccessStatus: 200, 
+}
+
 var httpsServer = https.createServer(credentials, app);
 
 app.use(bodyParser.json())
+app.use(cors(corsOptions));
 
 app.use('/api', api)
 app.get('/', function (req, res) {
